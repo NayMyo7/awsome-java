@@ -1,93 +1,60 @@
 package dev.naymyohtet.codesignal;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class TwoDimensionalArray {
     public static void main(String[] args) {
-        System.out.println("Two Dimensional Array");
-
         int h = 3;
         int w = 5;
         String[] queries = { "v 1 2", "x 2 2", "v 1 2", "> 2 1", "x 2 3", "> 2 1", "< 2 0" };
+        Timestamp startTime = new Timestamp(System.currentTimeMillis());
         int[][] result = solution(h, w, queries);
+        Timestamp endTime = new Timestamp(System.currentTimeMillis());
+        System.out.println("Time taken:" + (endTime.getTime() - startTime.getTime()) + "ms");
         System.out.println("Result: ");
-        for (int i = 0; i < result.length; i++) {
-            System.out.println(Arrays.toString(result[i]));
+        for (int[] row : result) {
+            System.out.println(Arrays.toString(row));
         }
     }
 
     public static int[][] solution(int h, int w, String[] queries) {
         List<int[]> resultList = new ArrayList<>();
-
-        // Initialize two dimensional array
         int[][] cells = new int[h][w];
-        for (int i = 0; i < h; i++) {
-            for (int j = 0; j < w; j++) {
-                cells[i][j] = 0;
-            }
-        }
 
         System.out.println("Queries: " + Arrays.toString(queries));
-        for (int k = 0; k < queries.length; k++) {
+        for (String q : queries) {
             // Split the query
-            String[] query = queries[k].split(" ");
-            String operation = query[0];
-            int x = Integer.parseInt(query[1]);
-            int y = Integer.parseInt(query[2]);
-            System.out.println(operation + " " + x + " " + y);
+            String[] parts = q.split(" ");
+            String op = parts[0];
+            int x = Integer.parseInt(parts[1]);
+            int y = Integer.parseInt(parts[2]);
+            System.out.println(op + " " + x + " " + y);
 
             int[] index = new int[] { -1, -1 };
             // Process the query
-            switch (operation) {
-                // Fill with back represented value 1
+            switch (op) {
                 case "x":
                     cells[x][y] = 1;
                     break;
-                // Find the rightmost white cell
                 case ">":
-                    for (int j = y + 1; j < w; j++) {
-                        if (cells[x][j] == 0) {
-                            index = new int[] { x, j };
-                            break;
-                        }
-                    }
+                    index = findRight(cells, x, y);
                     break;
-                // Find the leftmost white cell
                 case "<":
-                    for (int j = y - 1; j > 0; j--) {
-                        if (cells[x][j] == 0) {
-                            index = new int[] { x, j };
-                            break;
-                        }
-                    }
+                    index = findLeft(cells, x, y);
                     break;
-                // Find the upward white cell
                 case "^":
-                    for (int i = x - 1; i > 0; i--) {
-                        if (cells[i][y] == 0) {
-                            index = new int[] { i, y };
-                            break;
-                        }
-                    }
+                    index = findUp(cells, x, y);
                     break;
-
-                // Find the downward white cell
                 case "v":
-                    for (int i = x + 1; i < h; i++) {
-                        if (cells[i][y] == 0) {
-                            index = new int[] { i, y };
-                            break;
-                        }
-                    }
-                    break;
-                default:
+                    index = findDown(cells, x, y);
                     break;
             }
 
             System.out.println("Found at :" + Arrays.toString(index));
-            if (!"x".equals(operation)) {
+            if (!"x".equals(op)) {
                 resultList.add(index);
             }
 
@@ -100,6 +67,42 @@ public class TwoDimensionalArray {
 
         }
         return resultList.toArray(new int[0][]);
+    }
+
+    private static int[] findDown(int[][] cells, int x, int y) {
+        for (int i = x + 1; i < cells.length; i++) {
+            if (cells[i][y] == 0) {
+                return new int[] { i, y };
+            }
+        }
+        return new int[] { -1, -1 };
+    }
+
+    private static int[] findUp(int[][] cells, int x, int y) {
+        for (int i = x - 1; i > 0; i--) {
+            if (cells[i][y] == 0) {
+                return new int[] { i, y };
+            }
+        }
+        return new int[] { -1, -1 };
+    }
+
+    private static int[] findLeft(int[][] cells, int x, int y) {
+        for (int j = y - 1; j > 0; j--) {
+            if (cells[x][j] == 0) {
+                return new int[] { x, j };
+            }
+        }
+        return new int[] { -1, -1 };
+    }
+
+    private static int[] findRight(int[][] cells, int x, int y) {
+        for (int j = y + 1; j < cells[0].length; j++) {
+            if (cells[x][j] == 0) {
+                return new int[] { x, j };
+            }
+        }
+        return new int[] { -1, -1 };
     }
 
 }
